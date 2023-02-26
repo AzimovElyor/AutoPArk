@@ -1,0 +1,309 @@
+import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Scanner;
+
+public class Proyect {
+
+     static final String ANSI_RESET = "\u001B[0m";
+     static final String ANSI_BLACK = "\u001B[30m";               //CONSOLE RANGLARI
+     static final String ANSI_RED = "\u001B[31m";               //CONSOLE RANGLARI
+     static final String ANSI_GREEN = "\u001B[32m";               //CONSOLE RANGLARI
+     static final String ANSI_YELLOW = "\u001B[33m";               //CONSOLE RANGLARI
+     static final String ANSI_BLUE = "\u001B[34m";               //CONSOLE RANGLARI
+     static final String ANSI_PURPLE = "\u001B[35m";               //CONSOLE RANGLARI
+     static final String ANSI_CYAN = "\u001B[36m";               //CONSOLE RANGLARI
+    public static final String ANSI_WHITE = "\u001B[37m";
+    static int rowMassiv = 4;   /// AutoParkning qatorlar soni
+    static int columnMassiv = 5;   /// AutoParkning ustunlar soni
+    static int enterRow = 0;     // Foydalanuvchinig moshina kiritish uchun qatorni tanlashi
+    static int enterCol = 0;     // Foydalanuvchining moshina kiritish uchun ustunni tanlashi
+    static int outRow = 0;       // Foydalanuvchining moshina chiqarish uchun qatorni tanlashi
+    static  int outCol = 0;      // Foydalanuvchining moshina chiqarish uchun ustunni tanlashi
+   static int  time = 0;        /// Foydalanuvchining avtomobilinig turish vaqti
+    static String[] randomEmojiesArray= {   /// Ikonkalarni random qilib beradi
+            " \uD83D\uDEFA", " \uD83D\uDE8C"," \uD83D\uDE94"," \uD83D\uDE95", " \uD83D\uDE9A"," \uD83D\uDE9A", "\uD83D\uDEB2"
+    };
+    static int[][] parkingTimeOfTheCar = {               /// Userni autosi turushi mumkin bo'lgan vaqtlarni ozida saqlaydi
+            {0,0,0,0,0},
+            {0,0,0,0,0},
+            {0,0,0,0,0},
+            {0,0,0,0,0}
+    };
+    static int[][] nonRecurrence = {        /// BU MASSIV BIR KORDINATAGA IKKI MARTA MUROJAT QILISHDAN QUTQARISH UCHUN
+            {0,0,0,0,0},
+            {0,0,0,0,0},
+            {0,0,0,0,0},
+            {0,0,0,0,0}
+    } ;
+    static  String[][] namesUsers ={          /// USERLARNING ISMLARINI SAQLAB TURISH UCHUN
+            {"", "", "" , "" , ""},
+            {"", "", "" , "" , ""},
+            {"", "", "" , "" , ""},
+            {"", "", "" , "" , ""}
+    };
+    static  String[][] passwordUsers ={          /// USERLARNING PAROLLARINI  SAQLAB TURISH UCHUN
+            {"", "", "" , "" , ""},
+            {"", "", "" , "" , ""},
+            {"", "", "" , "" , ""},
+            {"", "", "" , "" , ""}
+    };
+    static String [][] autoMassiv ={                 /// DISPLAY -- KORINISH QISMI
+           {" 🅿 " , " 🅿 ", " 🅿 ", " 🅿 ", " 🅿 "},
+           {" 🅿 " , " 🅿 ", " 🅿 ", " 🅿 ", " 🅿 "},
+           {" 🅿 " , " 🅿 ", " 🅿 ", " 🅿 ", " 🅿 "},
+           {" 🅿 " , " 🅿 ", " 🅿 ", " 🅿 ", " 🅿 "},
+   };
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        int switchMenus ;
+        do{
+            display();
+            System.out.println( ANSI_BLUE + "1. Enter the car in the park ");
+            System.out.println("2. Out the car in the park ");
+            System.out.println("3. Empty places ");
+            System.out.println("4. Not empty places ");
+            System.out.println("5.About our park ");
+            System.out.println("0. Quit the park ");
+            System.out.println("---------------------------------");
+            System.out.print(ANSI_RED+ "Switch the menus : ");
+        switchMenus  = scanner.nextInt();
+            switch (switchMenus){
+                case 1 -> enterTheCarsMenu();
+                case 2 -> outTheCarsMenu();
+                case 3 -> emptyPlaces();
+                case 4 -> isNotEmptyPlaces();
+                case 5 -> aboutThePark();
+                default -> System.out.println( " You have entered the wrong menu number ");
+            }
+        }while (switchMenus != 0);
+
+        System.out.println(ANSI_GREEN+ "Thank you for use our service ✔✔✔✔✔✔ ");
+    }
+    public static void display(){     /// KORINISH QISMI
+        for (String[] strings : autoMassiv) {
+            for (String string : strings) {
+                System.out.print(ANSI_BLACK + string);
+            }
+            System.out.println();
+        }
+    }
+    public static boolean enterTheAutoPosition(){     /// AUTOLARNI PARKKA KIRITISH UCHUN
+        Scanner scanner = new Scanner(System.in);
+        System.out.print( ANSI_RESET + "Enter the row number : ");
+         enterRow = scanner.nextInt();
+        System.out.print("Enter the column number : ");
+         enterCol = scanner.nextInt();
+        return isCorrectInputRows();
+    }
+    public static boolean isCorrectInputRows(){      /// KIRITILGAN KORDINATALAR TOGRI KIRITILGANLIGINI TEKSHIRISH UCHUN
+        if(enterRow > 0 && enterCol > 0) {
+            if (enterRow <= rowMassiv && enterCol <= columnMassiv) {
+                return true;
+            }
+        }
+        System.out.println(ANSI_RED + "You have crossed the line limit ! ");
+        return false;
+    }
+    public  static void enterTheCarsMenu(){     /// PARKKKA KIRITISH UCHUN ASOSIY MENYU
+        System.out.println(ANSI_CYAN +"You have selected the input cars menu →→→→→");
+        boolean isInPosition ;
+        boolean isTimeLimit;
+        do {
+            isInPosition = enterTheAutoPosition();
+
+            if (isInPosition && stadingTime()) {
+                if (isEmpty()) {
+
+                    autoMassiv[enterRow - 1][enterCol - 1] = randomEmojiesArray[randomEmojies()];
+                    parkingTimeOfTheCar[enterRow - 1][enterCol-1] = time;
+                    namesUsers[enterRow - 1][enterCol - 1] = userInfo();
+                    passwordUsers[enterRow - 1][enterCol - 1] = userPassword();
+                    String name = namesUsers[enterRow-1][enterCol-1];
+                    System.out.println( ANSI_GREEN+ "Welcom to "+ ANSI_PURPLE   + name.trim() +  ANSI_GREEN+ " in our auto places 🏎🏎🚖");
+                    System.out.println("You have booked this place for "+ parkingTimeOfTheCar[enterRow-1][enterCol-1] +  " hours 🕐");
+
+                } else {
+                    System.out.println(ANSI_RED + "This place " + ANSI_PURPLE + namesUsers[enterRow - 1][enterCol - 1] +ANSI_RED + "'s");
+                    System.out.println("Please choose another places ! ");
+                    System.out.println("❌❌❌❌❌❌❌❌❌❌");
+                }
+            }
+
+        }  while (!isInPosition );
+
+    }
+    public static String userInfo(){             /// USERNING ISMINI KIRITISH UCHUN
+        Scanner scanner = new Scanner(System.in);
+        String name ;
+        System.out.print("Enter the name : ");
+        name = scanner.nextLine();
+        return name;
+
+    }   public static String userPassword(){     /// USERNING PAROLINI KIRITISH UCHUN
+        Scanner scanner = new Scanner(System.in);
+        String password ;
+        System.out.print("Enter the password : ");
+        password = scanner.nextLine();
+        return password;
+    }
+    public static  boolean isEmpty(){           /// JOYNI BOSH EKANLIGINI TEKSHIRISH
+        if(nonRecurrence[enterRow-1][enterCol-1] == 0){
+            nonRecurrence[enterRow-1][enterCol-1] = 100;
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean stadingTime(){    // VAQT LIMIT DARAJADA KIRITILGANLIGINI ANIQLAYDI
+        Scanner scanner = new Scanner(System.in);
+        System.out.println( ANSI_GREEN + "How long do you want your car to stay in our fleet? ");
+        System.out.print(" Please note that the maximum time limit is 5 hours ");
+         time = scanner.nextInt();
+        if(time <= 0 || time >5){
+            System.out.println(ANSI_RED + "You have exceeded the time limit 🕒🕒❌❌❌❌");
+        }
+        return time > 0 && time <= 5;
+    }
+    public static  void outTheCarsMenu(){ /// AUTONI CHIQARISH UCHUN ASOSIY MENYU
+        System.out.println(ANSI_YELLOW+ "You have selected the car takeout menu ←←←←←←←←←");
+       boolean isOutPosition;
+        do {
+            isOutPosition = outTheCars();
+            if(isOutPosition){
+               if(isEmptyOutCarsPosition()){
+                   if(confirmInformation()){
+                       chekingTheAmountOfMoney();
+                   }
+                   else{
+                       System.out.println(ANSI_RED + "This  place does not balon to your car ❗❗❗❗❗❗❌❌❌❌❌❌❌ ");
+                   }
+
+               }
+               else{
+                   System.out.println(ANSI_RED + "There is no car here 👎👎👎👎👎👎");
+               }
+            }
+            else{
+                System.out.println(ANSI_RED + "The address of the right places was entered ! ");
+            }
+        }while (!isOutPosition);
+
+    }
+    public  static boolean outTheCars(){         /// AUTONI PARKDAN OLIB CHIQISH UCHUN KORDINATALARNI KIRITISH UCHUN
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the row number : ");
+        outRow = scanner.nextInt();
+        System.out.print("Enter the column number : ");
+        outCol = scanner.nextInt();
+        return isCorrectOutCars();
+    }
+    public static boolean isCorrectOutCars(){    /// KORDINATALR LIMIT DARAJADA KIRITLGANLIGINI TEKSHIRADI
+        if(outRow > 0  && outCol > 0){
+            if(outRow <= rowMassiv && outCol <= columnMassiv){
+                return true;
+            }
+            System.out.println(ANSI_RED + "You have crossed the line limit ! ");  /// Kiritilgan kordinata haqiqatdan ham auto borligini tekshiradi
+
+        }
+        return false;
+    }
+    public static boolean isEmptyOutCarsPosition(){     /// BU JOYDA AUTO BORLIGINI TEKSHIRADI
+        return nonRecurrence[outRow-1][outCol-1] !=0;
+    }
+    public static boolean confirmInformation(){     //// MALUMOTLARNI TO'GRILIGINI TEKSHIRADI
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please confirm your information ");
+        System.out.print("Enter your name : ");
+        String name = scanner.nextLine();
+        System.out.print("Enter yout password : ");
+        String password = scanner.nextLine();
+
+        return name.trim().equalsIgnoreCase(namesUsers[outRow - 1][outCol - 1]) && password.equals(passwordUsers[outRow - 1][outCol - 1]);
+    }
+
+
+/*
+*    3-MENYU  AUTO OLIB KIRILISHI UCHUN QOLGAN JOYLAR
+*
+ */
+    public static void emptyPlaces(){
+        System.out.println("Empty places in our places 👐👐👐");
+        for(int i = 0; i < nonRecurrence.length; i++){
+            System.out.print(i+1 + " row : ");
+            for(int j = 0; j < nonRecurrence[i].length; j++) {
+                if (nonRecurrence[i][j] == 0) {
+                    if(j < nonRecurrence[i]. length - 1){
+                        System.out.print(j + 1 + "column -- ");
+                    }
+                    else if (j == nonRecurrence[i].length-1) {
+                        System.out.print(j + 1 + "column ");
+                        ;
+                    }
+                }
+                else{
+                    System.out.print("xxxxxx--");
+                }
+            }
+            System.out.println();
+            System.out.println("--------------------------------------------------------");
+        }
+    }
+
+    /*
+    *   4-MENYU BAND BOLGAN JOYLAR
+     */
+    public  static void isNotEmptyPlaces(){
+        System.out.println("Not empty places in our places 🔐🔐🔓 ");
+          for(int i = 0; i < nonRecurrence.length; i++){
+              System.out.print(i+1 + " row : ");
+              for(int j = 0; j < nonRecurrence[i].length; j++){
+                  if(nonRecurrence[i][j] != 0){
+                      if(j < nonRecurrence[i]. length - 1){
+                          System.out.print(j + 1 + "column  ");
+                      }
+                  }
+              }
+              System.out.println();
+              System.out.println("⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉⇉");
+          }
+    }
+    /*
+    *   5- MENYU PARK VA TIZIM HAQIDA UMUMIY MALUMOTLAR ;
+    * */
+    public static void aboutThePark(){
+        System.out.println(ANSI_CYAN + "Our auto pack has 4 rows and 5 columns");
+        System.out.println("10 💲 are paid for 1 hour parking in our car park.");
+        System.out.println("When you check in your vehicle, your information (name and password) is collected and compared when you check out");
+        System.out.println("If the entered information is incorrect or the required amount of money is not paid, you will not be able to take your car out of the park");
+    }
+    public static int randomMoney(){   /// USERNING RANDOM ORQALI ANIQLANADIGAN PUL MIQDORI
+        Random random = new Random();
+        return random.nextInt(5,60);
+    }
+    public static void chekingTheAmountOfMoney(){      // USERNING PULINI TOLOV MIQDORI BILAN SOLISHTIRADI
+        System.out.print(parkingTimeOfTheCar[outRow-1][outCol-1] * 10 + " 💲 from you ");
+        Scanner scanner = new Scanner(System.in);
+        int enterMoney = scanner.nextInt();
+        int moneyOfUser = randomMoney();
+        if(moneyOfUser >= parkingTimeOfTheCar[outRow-1][outCol-1] * 10 && enterMoney ==parkingTimeOfTheCar[outRow-1][outCol-1] * 10){
+            System.out.println(ANSI_GREEN + "The payment process has been completed successfully");
+            System.out.println("Thank you for use our service 👌✌👋👋");
+            System.out.println("You have " +( moneyOfUser - parkingTimeOfTheCar[outRow-1][outCol-1] * 10 )+ " 💲 left in your balance ");
+            autoMassiv[outRow-1][outCol-1] = " 🅿 ";
+            nonRecurrence[outRow-1][outCol-1] = 0;
+        }
+        else{
+               System.out.println(ANSI_RED + "Your money " + moneyOfUser + " 💲 ");
+            System.out.println("Your balance has sufficient funds or you have made an incorrect payment");
+            System.out.println("❌💲💲💲💲💲💲💲💲💲💲❌");
+        }
+    }
+    public static int randomEmojies(){   /// IKONKALAR TURGAN MASSIV INDEXSINI RANDOM QILIB BERADI
+        Random random = new Random();
+         return random.nextInt(0,6);
+    }
+
+
+}
